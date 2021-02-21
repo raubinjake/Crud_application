@@ -14,6 +14,20 @@ class User_model extends CI_model
 	{
 		return $users=$this->db->get('users')->result_array();
 	}
+
+
+	function check_user($email,$password)
+	{
+		$sql="SELECT * FROM users WHERE email='$email' AND password='$password'";
+		$result=$this->db->query($sql)->result_array();
+		if(empty($result))
+		{
+			return 0;
+		}
+		else{
+			return 1;
+		}
+	}
 	// fetch single row for update a single row value
 	function getUser($id){
 

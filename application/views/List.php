@@ -40,6 +40,7 @@
 		        </div>
 	        <div class="col-6 text-right">
 				<a href="<?php echo base_url().'index.php/user/create/';?>" class="btn btn-primary">Create</a>
+				<a href="<?php echo base_url().'index.php/user/check_login/';?>" class="btn btn-primary">Logout</a>
 			</div>
 				
 			</div>
