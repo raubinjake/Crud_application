@@ -14,7 +14,7 @@
 <div class="container" style="padding-top: 10px;">
 	<h3>Create User</h3>
 	<hr>
-	<form method="post" name='createUser' action="<?php echo base_url().'index.php/user/create';?>">
+	<form method="post" name='createUser' enctype="multipart/form-data" action="<?php echo base_url().'index.php/user/create';?>">
 	<div class="row">		
 		<div class="column-md-12">
 			<div class="form-group">
@@ -31,6 +31,17 @@
 				<label>Password</label>
 				<input type="password" name="password" value="<?php echo set_value('password')?>" class="form-control">
 				<?php echo form_error('password'); ?>
+			</div>
+			<div class="form-group">
+				
+			<label for='body'>Select Image</label>
+			<?php echo form_upload(['name'=>'userfile']); ?>
+			
+			<div>
+				<?php if(isset($upload_error)) 
+ 					{ echo $upload_error; }
+				 ?>
+			</div>
 			</div>
 			<div class="form-group">
 				<button class="btn btn-primary">Create</button>
