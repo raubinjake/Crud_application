@@ -8,6 +8,13 @@
  </head>
  <body>
 
+  <div class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <a href="#" class="navbar-brand">Crud Application</a>
+    
+  </div>
+</div>
+
     <form method="POST" name='createUser' action="<?php echo base_url().'index.php/user/check_login';?>">
 
   <div class="form-group">

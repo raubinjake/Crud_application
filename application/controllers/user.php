@@ -2,8 +2,16 @@
 /**
  * 
  */
+defined('BASEPATH') OR exit('No direct script access allowed');
 class User extends CI_controller
 {
+	function __construct()
+	{
+		parent::__construct();
+		if(!$this->session->userdata('id'));
+			//redirect(base_url().'index.php/user/');
+	}
+
 	function index()
 	{  	
 		
@@ -23,6 +31,7 @@ class User extends CI_controller
 			$checked_value=$this->User_model->check_user($email,$password);
 			if($checked_value==1)
 				{
+					$this->session->set_userdata('id','1');
 					redirect(base_url().'index.php/user/exits');
 				}	    
 		    	else
@@ -40,19 +49,38 @@ class User extends CI_controller
 	}
 
 	function exits(){
-	        $user=$this->User_model->all();
-		    $data=array();
-		    $data['users']=$user;
-		    $this->load->view('List',$data);  
+			if( ! $this->session->userdata('id'))
+		        {
+		        $this->index();
+		     }
+		    else
+		    {
+		    	$user=$this->User_model->all();
+		    	$data=array();
+		    	$data['users']=$user;
+		    	$this->load->view('List',$data);
+		    }
+	}
+
+	function logout()
+	{
+		$this->session->sess_destroy();
+		redirect(base_url().'index.php/user/');
 	}
 	function create(){
+
+		if( ! $this->session->userdata('id'))
+		        {
+		        $this->index();
+		     }
+		     else{
 		$this->load->model('User_model');
 		$this->form_validation->set_rules('name','Name','required');
 		$this->form_validation->set_rules('email','Email','required|valid_email');
 		$this->form_validation->set_rules('password','Password','required');
 		//$this->form_validation->set_rules('userfile','userfile','required');
 		        $config['upload_path']          = './upload/';
-                $config['allowed_types']        = 'gif|jpg|png';
+                $config['allowed_types']        = 'gif|jpg|png|jpeg';
                 //$config['max_size']             = 100;
                 //$config['max_width']            = 1024;
                 //$config['max_height']           = 768;	
@@ -88,11 +116,23 @@ class User extends CI_controller
 				$upload_error=$this->upload->display_errors();	
 			   $this->load->view('create',compact('upload_error'));
 			}
+	}		
 
 	}
 	
 	//Update value in database
-	function edit($id){
+	function edit(){
+
+       
+
+		if( ! $this->session->userdata('id') || $this->uri->segment(3)=='')
+		        {
+		        $this->index();
+		     }
+		else{
+
+			$id =$this->uri->segment(3); 
+
 		$this->load->model('User_model');
 		$user=$this->User_model->getUser($id);
 		$data=array();
@@ -115,9 +155,21 @@ class User extends CI_controller
 			$this->session->set_flashdata('success','Record Updated successfully');
 			redirect(base_url().'index.php/user/exits');
 		}
+
+	}	
 	}
 		//for delete the value from database
-		function delete($id){
+		function delete(){
+
+
+			if( ! $this->session->userdata('id') || $this->uri->segment(3)=='')
+		        {
+		        $this->index();
+		     }
+
+		    else{
+		    	$id =$this->uri->segment(3);
+
 			$this->load->model('User_model');
 			$user=$this->User_model->getUser($id);
 			if(empty($user)){
@@ -128,5 +180,7 @@ class User extends CI_controller
 			$this->session->set_flashdata('success','Record Deleted successfully');
 			redirect(base_url().'index.php/user/exits');
 		}
+
+	}
 }
 ?>
