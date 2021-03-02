@@ -41,6 +41,9 @@ class User_model extends CI_model
 	function updateUser($id,$formArray){
 		$this->db->where('id',$id);
 		$this->db->update('users',$formArray);
+	/*/echo"<pre>";
+		print_r($formArray) ;
+		exit();*/
 	}
 
 	// delete user from database

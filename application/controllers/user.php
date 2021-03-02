@@ -5,12 +5,14 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class User extends CI_controller
 {
-	function __construct()
+	/*public function __construct()
 	{
 		parent::__construct();
-		if(!$this->session->userdata('id'));
-			//redirect(base_url().'index.php/user/');
-	}
+		if( ! $this->session->userdata('id') )
+			$this->check_login();
+		//else
+		//	$this->check_login();
+	}*/
 
 	function index()
 	{  	
@@ -27,25 +29,24 @@ class User extends CI_controller
 		{
 				//
 			$email=$this->input->post('email');
-			$password=$this->input->post('password');
+			$password=sha1($this->input->post('password'));
 			$checked_value=$this->User_model->check_user($email,$password);
 			if($checked_value==1)
 				{
-					$this->session->set_userdata('id','1');
-					redirect(base_url().'index.php/user/exits');
+					$this->session->set_userdata('id',$checked_value);
+					return redirect(base_url().'index.php/user/exits');
 				}	    
 		    	else
 		    	{
+		    		
+		    		$this->session->set_flashdata('login_failed','Username or Password is invalid, Try Again !');
+		    		
 		    		$this->index();
-		    		echo"Username or Password is invalid, Try Again !";
 		    	}
 
 		}
 
-		else
-		{
-			$this->index();
-		}
+
 	}
 
 	function exits(){
@@ -65,7 +66,7 @@ class User extends CI_controller
 	function logout()
 	{
 		$this->session->sess_destroy();
-		redirect(base_url().'index.php/user/');
+		return redirect (base_url().'index.php/user/');
 	}
 	function create(){
 
@@ -79,8 +80,8 @@ class User extends CI_controller
 		$this->form_validation->set_rules('email','Email','required|valid_email');
 		$this->form_validation->set_rules('password','Password','required');
 		//$this->form_validation->set_rules('userfile','userfile','required');
-		        $config['upload_path']          = './upload/';
-                $config['allowed_types']        = 'gif|jpg|png|jpeg';
+		        $config['upload_path'] = './upload/';
+                $config['allowed_types'] = 'gif|jpg|png|jpeg';
                 //$config['max_size']             = 100;
                 //$config['max_width']            = 1024;
                 //$config['max_height']           = 768;	
@@ -96,7 +97,9 @@ class User extends CI_controller
 			$formArray= array();
 			$formArray['name']=$this->input->post('name');
 			$formArray['email']=$this->input->post('email');
-			$formArray['password']=$this->input->post('password');
+			$password = $this->input->post('password');
+			//$this->load->library('password');
+			$formArray['password'] = sha1($this->input->post('password'));
 			$formArray['created_date']=date('Y-m-d');
 			$userfile=$this->input->post();
 			//print_r($userfile) ;
@@ -105,11 +108,11 @@ class User extends CI_controller
 			//echo "<pre>";
 			//print_r($data);
 			//die();
-			$image_path=base_url("upload/".$data['raw_name'].$data['fiel_ext']);
+			$image_path=base_url("upload/".$data['raw_name'].$data['file_ext']);
 			$formArray['image_path']=$image_path;
 			$this->User_model->create($formArray);
 			$this->session->set_flashdata('success','Record added successfully');
-			redirect(base_url().'index.php/user/exits');
+			return redirect (base_url().'index.php/user/exits');
 		}
 		else
 		{		
@@ -128,7 +131,7 @@ class User extends CI_controller
 		if( ! $this->session->userdata('id') || $this->uri->segment(3)=='')
 		        {
 		        $this->index();
-		     }
+		        }
 		else{
 
 			$id =$this->uri->segment(3); 
@@ -140,20 +143,32 @@ class User extends CI_controller
 		$this->form_validation->set_rules('name','Name','required');
 		$this->form_validation->set_rules('email','Email','required|valid_email');
 		$this->form_validation->set_rules('password','password','required');
+		$config['upload_path'] = './upload/';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $this->upload->initialize($config);
 
-		if($this->form_validation->run() == false)
-			{			
-			   $this->load->view('Edit',$data);
-			}
-		else{
+		if($this->form_validation->run() && $this->upload->do_upload())
+			
+		{
 			//update value 
 			$formArray=array();
 			$formArray['name']=$this->input->post('name');
 			$formArray['email']=$this->input->post('email');
-			$formArray['password']=$this->input->post('password');
+			$formArray['password']=sha1($this->input->post('password'));
+			$userfile=$this->input->post();
+			$data=$this->upload->data();
+			//echo "<pre>";
+			//print_r($data);
+			//die();
+			$image_path=base_url("upload/".$data['raw_name'].$data['file_ext']);
+			$formArray['image_path']=$image_path;
 			$this->User_model->updateUser($id,$formArray);
 			$this->session->set_flashdata('success','Record Updated successfully');
-			redirect(base_url().'index.php/user/exits');
+			return redirect (base_url().'index.php/user/exits');
+		}
+		else
+		{			
+			$this->load->view('Edit',$data);
 		}
 
 	}	
@@ -174,11 +189,11 @@ class User extends CI_controller
 			$user=$this->User_model->getUser($id);
 			if(empty($user)){
 				$this->session->set_flashdata('failure','Record not found in database');
-			    redirect(base_url().'index.php/user/index');
+			    return redirect(base_url().'index.php/user/index');
 			}
 			$this->User_model->deleteUser($id);
 			$this->session->set_flashdata('success','Record Deleted successfully');
-			redirect(base_url().'index.php/user/exits');
+			return redirect (base_url().'index.php/user/exits');
 		}
 
 	}

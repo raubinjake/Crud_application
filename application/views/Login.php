@@ -14,7 +14,17 @@
     
   </div>
 </div>
+<?php if($login_failed = $this->session->flashdata('login_failed')): ?>
 
+<div class="row">
+  <div class="col-lg-6">
+    <div class="alert alert-danger">
+      <?php echo $login_failed; ?>
+     </div> 
+    </div>
+    
+  </div>
+<?php endif; ?>
     <form method="POST" name='createUser' action="<?php echo base_url().'index.php/user/check_login';?>">
 
   <div class="form-group">
